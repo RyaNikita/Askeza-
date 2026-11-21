@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Аскеза">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>Аскеза</title>
+<style>
+:root{
+  --bg:#0b0b0d; --s1:#141418; --s2:#1c1c22; --line:#26262d;
+  --tx:#ececf1; --mut:#8b8b96; --acc:#d9b36c; --acc-d:#3a301c; --bad:#c76a62;
+  --r:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);
+  font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-text-size-adjust:100%}
+body{min-height:100vh;min-height:100dvh}
+#wrap{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 96px)}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input,textarea{font:inherit;color:var(--tx);background:var(--s1);border:1px solid var(--line);
+  border-radius:12px;padding:12px 14px;width:100%;outline:none;-webkit-appearance:none;appearance:none}
+input:focus,textarea:focus{border-color:var(--acc)}
+input::placeholder,textarea::placeholder{color:#55555e}
+input[type=date]{min-height:46px}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0}
+h2{font-size:13px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin:28px 0 10px}
+.top{display:flex;align-items:center;justify-content:space-between;margin:4px 0 18px;min-height:40px}
+.iconbtn{width:40px;height:40px;border-radius:50%;background:var(--s1);border:1px solid var(--line);
+  display:grid;place-items:center;font-size:22px;line-height:1}
+.iconbtn:active{background:var(--s2)}
+.grow{flex:1;min-width:0}
+.row{display:flex;align-items:center;gap:12px}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.card:active{background:var(--s2)}
+.t{font-weight:600;font-size:17px;overflow:hidden;text-overflow:ellipsis}
+.sub{color:var(--mut);font-size:14px;margin-top:2px}
+.meta{color:var(--mut);font-size:13px;margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
+.bar{height:6px;background:var(--s2);border-radius:3px;overflow:hidden;margin-top:14px}
+.bar>i{display:block;height:100%;background:var(--acc);border-radius:3px;transition:width .3s}
+.chk{width:44px;height:44px;border-radius:50%;border:2px solid #3a3a44;display:grid;place-items:center;flex:none;color:transparent;transition:.15s}
+.chk svg{width:22px;height:22px}
+.chk.on{background:var(--acc);border-color:var(--acc);color:#16120a}
+.chk.dis{opacity:.35}
+.chk.lock{border-color:var(--acc-d);background:var(--acc-d);color:var(--acc);cursor:default}
+.chip{display:inline-block;padding:8px 13px;border-radius:999px;background:var(--s1);border:1px solid var(--line);font-size:14px;color:var(--tx);white-space:nowrap}
+.chip:active,.chip.on{border-color:var(--acc);color:var(--acc)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.btn{display:block;width:100%;padding:14px;border-radius:14px;background:var(--acc);color:#16120a;font-weight:600;text-align:center}
+.btn:active{opacity:.85}
+.btn.ghost{background:var(--s1);color:var(--tx);border:1px solid var(--line)}
+.btn.danger{background:none;color:var(--bad);border:1px solid #3a2321}
+.btns{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.lbl{display:block;font-size:13px;color:var(--mut);margin:18px 0 8px}
+.seg{display:flex;background:var(--s1);border:1px solid var(--line);border-radius:12px;padding:3px}
+.seg button{flex:1;padding:10px;border-radius:9px;color:var(--mut)}
+.seg button.on{background:var(--s2);color:var(--tx)}
+.notice{margin-top:12px;padding:10px 12px;border-radius:12px;background:#241615;border:1px solid #3a2321;color:#e3a29b;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+.notice button{margin-left:auto;color:#e3a29b;font-size:18px;line-height:1;padding:0 2px}
+.hint{margin-bottom:14px;padding:12px 14px;border-radius:12px;background:var(--s1);border:1px dashed #3a3a44;font-size:13px;color:var(--mut);display:flex;gap:10px}
+.hint button{margin-left:auto;font-size:18px;color:var(--mut)}
+.empty{text-align:center;color:var(--mut);padding:60px 20px}
+.empty .big{font-size:18px;color:var(--tx);margin-bottom:6px}
+.days .d{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line)}
+.days .d:last-child{border-bottom:0}
+.days .n{font-weight:600}
+.days .dt{color:var(--mut);font-size:13px}
+.days .warn{color:var(--acc);font-size:12px}
+.big-num{font-size:40px;font-weight:700;letter-spacing:-.02em}
+.big-num small{font-size:18px;color:var(--mut);font-weight:500}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.tile b{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em}
+.tile span{color:var(--mut);font-size:13px}
+.medals{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.medal{text-align:center;padding:14px 4px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);opacity:.4}
+.medal.on{opacity:1;border-color:var(--acc-d)}
+.medal .o{width:38px;height:38px;border-radius:50%;margin:0 auto 6px;display:grid;place-items:center;font-weight:700;border:2px solid #3a3a44;color:var(--mut)}
+.medal.on .o{border-color:var(--acc);color:var(--acc);background:var(--acc-d)}
+.medal span{font-size:12px;color:var(--mut)}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(11,11,13,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--line);padding:8px 16px calc(env(safe-area-inset-bottom) + 8px)}
+.tabs>div{max-width:520px;margin:0 auto;display:flex}
+.tabs button{flex:1;padding:10px 4px;font-size:13px;color:var(--mut);border-radius:10px}
+.tabs button.on{color:var(--acc)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;z-index:20;padding:16px}
+.modal>div{background:var(--s1);border:1px solid var(--line);border-radius:22px;padding:24px 20px;width:100%;max-width:480px;
+  margin-bottom:env(safe-area-inset-bottom);max-height:90vh;overflow:auto}
+.modal h3{margin:0 0 6px;font-size:22px;letter-spacing:-.01em}
+.center{text-align:center}
+.ring{width:84px;height:84px;border-radius:50%;border:3px solid var(--acc);margin:6px auto 16px;display:grid;place-items:center;color:var(--acc);
+  animation:pulse 2.2s ease-in-out infinite}
+.ring svg{width:40px;height:40px}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(217,179,108,.35)}50%{box-shadow:0 0 0 14px rgba(217,179,108,0)}}
+.reward{margin:16px 0 4px;padding:14px;border-radius:14px;background:var(--acc-d);color:var(--acc);font-weight:600}
+.reward small{display:block;font-weight:500;opacity:.75;margin-bottom:4px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 76px);background:var(--s2);border:1px solid var(--line);
+  padding:10px 16px;border-radius:999px;font-size:14px;z-index:30;box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:90vw}
+.small{font-size:13px;color:var(--mut)}
+textarea{min-height:140px;resize:vertical}
+.tag{display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:2px 6px;margin-right:6px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="app"></div></div>
+<div id="tabs" class="tabs" hidden></div>
+<div id="modal" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+/*CORE_START*/
+const DAY = 86400000;
+const MEDALS = [7, 21, 40, 100];
+function pad(n){ return String(n).padStart(2, '0'); }
+function ymd(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function dnum(s){ const p = s.split('-').map(Number); return Math.round(Date.UTC(p[0], p[1] - 1, p[2]) / DAY); }
+function addDays(s, n){
+  const p = s.split('-').map(Number);
+  const t = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n));
+  return t.getUTCFullYear() + '-' + pad(t.getUTCMonth() + 1) + '-' + pad(t.getUTCDate());
+}
+function dayIndex(c, today){ return dnum(today) - dnum(c.start) + 1; }
+function dateOf(c, d){ return addDays(c.start, d - 1); }
+function streak(c){
+  let n = 0;
+  for (let d = 1; d <= c.days; d++){ if (c.checks[dateOf(c, d)]) n++; else break; }
+  return n;
+}
+function checkedCount(c){
+  let n = 0;
+  for (let d = 1; d <= c.days; d++) if (c.checks[dateOf(c, d)]) n++;
+  return n;
+}
+// Отметить можно сегодняшний день и вчерашний (до конца сегодняшнего дня).
+function canToggle(c, d, today){
+  if (c.status !== 'active') return false;
+  const N = dayIndex(c, today);
+  return d >= 1 && d <= c.days && d <= N && d >= N - 1;
+}
+function targetDay(c, today){
+  const N = dayIndex(c, today);
+  if (N < 1) return null;
+  return Math.min(N, c.days);
+}
+function toggleDay(c, d, today){
+  if (!canToggle(c, d, today)) return { ok: false };
+  const k = dateOf(c, d);
+  if (c.checks[k]) delete c.checks[k]; else c.checks[k] = true;
+  let completed = false;
+  if (c.checks[k] && checkedCount(c) === c.days){
+    c.status = 'done';
+    c.finishedAt = today;
+    c.completedAt = today;
+    c.completions = (c.completions || 0) + 1;
+    completed = true;
+  }
+  return { ok: true, completed: completed, checked: !!c.checks[k] };
+}
+// Пропущенный день окончательно "сгорает" в конце следующего дня -> сброс на день 1 (сегодня).
+function tick(state, today){
+  let changed = false;
+  for (const c of state.challenges){
+    if (c.status !== 'active') continue;
+    const N = dayIndex(c, today);
+    if (N < 3) continue;
+    const last = Math.min(c.days, N - 2);
+    for (let d = 1; d <= last; d++){
+      if (!c.checks[dateOf(c, d)]){
+        const st = d - 1;
+        c.attempts.push({ n: c.attempt, start: c.start, end: dateOf(c, d), streak: st });
+        c.attempt++;
+        c.start = today;
+        c.checks = {};
+        c.notice = { streak: st, attempt: c.attempt, day: d };
+        changed = true;
+        break;
+      }
+    }
+  }
+  return changed;
+}
+function newChallenge(o, id){
+  return { id: id, title: o.title, goal: o.goal || '', reward: o.reward || '', kind: o.kind || 'abstain',
+    days: o.days, start: o.start, attempt: 1, attempts: [], checks: {}, status: 'active',
+    notice: null, completions: 0, completedAt: null, finishedAt: null };
+}
+function calcStats(state){
+  const r = { completed: 0, active: 0, bestNow: 0, best: 0, resets: 0, attempts: 0, days: 0 };
+  for (const c of state.challenges){
+    r.attempts += c.attempts.length + 1;
+    r.resets += c.attempts.length;
+    for (const a of c.attempts){ r.best = Math.max(r.best, a.streak); r.days += a.streak; }
+    const cur = streak(c);
+    r.days += checkedCount(c);
+    r.best = Math.max(r.best, cur);
+    r.completed += c.completions || 0;
+    if (c.status === 'active'){ r.active++; r.bestNow = Math.max(r.bestNow, cur); }
+  }
+  return r;
+}
+function plDays(n){
+  const a = n % 10, b = n % 100;
+  if (a === 1 && b !== 11) return 'день';
+  if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return 'дні';
+  return 'днів';
+}
+/*CORE_END*/
+
+/* ---------- Данные ---------- */
+const KEY = 'askeza.v1';
+const IDEAS = {
+  abstain: [['Без цукру',21],['Без соцмереж',30],['Без алкоголю',30],['Без кави',21],['Без фастфуду',21],['Без телефону перед сном',21],['Без скарг',21],['Без пізніх перекусів',21]],
+  habit: [['Холодний душ',21],['Прокидатися о 6:00',21],['10 000 кроків',30],['Читати 20 хвилин',30],['Медитація 10 хвилин',21],['Вода 2 літри',21],['Ранкова зарядка',21],['Вести щоденник',21]]
+};
+const MONTHS = ['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'];
+const WD = ['нд','пн','вт','ср','чт','пт','сб'];
+let memOnly = false;
+
+function load(){
+  try {
+    const r = localStorage.getItem(KEY);
+    if (r){ const s = JSON.parse(r); if (s && Array.isArray(s.challenges)) return s; }
+  } catch (e) { memOnly = true; }
+  return { v: 1, challenges: [], lastBackup: null, hintDismissed: false };
+}
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { memOnly = true; }
+}
+let state = load();
+const today = () => ymd(new Date());
+const find = id => state.challenges.find(c => c.id === id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+function fmtDate(s, withWd){
+  const p = s.split('-').map(Number);
+  const wd = WD[new Date(Date.UTC(p[0], p[1] - 1, p[2])).getUTCDay()];
+  return (withWd ? wd + ', ' : '') + p[2] + ' ' + MONTHS[p[1] - 1];
+}
+function fmtFull(s){ const p = s.split('-'); return p[2] + '.' + p[1] + '.' + p[0]; }
+
+const ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+/* ---------- UI ---------- */
+const $app = document.getElementById('app');
+const $tabs = document.getElementById('tabs');
+const $modal = document.getElementById('modal');
+const $toast = document.getElementById('toast');
+let ui = { tab: 'home', screen: null, id: null };
+let lastToday = today();
+
+function toast(msg){
+  $toast.textContent = msg; $toast.hidden = false;
+  clearTimeout(toast.t);
+  toast.t = setTimeout(() => { $toast.hidden = true; }, 2600);
+}
+function openModal(html){ $modal.innerHTML = '<div class="modal" data-act="modalbg"><div>' + html + '</div></div>'; $modal.hidden = false; }
+function closeModal(){ $modal.hidden = true; $modal.innerHTML = ''; }
+
+function isStandalone(){ return window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
+function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+
+function render(){
+  let html;
+  if (ui.screen === 'new') html = viewNew();
+  else if (ui.screen === 'detail' && find(ui.id)) html = viewDetail(find(ui.id));
+  else { ui.screen = null; html = ui.tab === 'stats' ? viewStats() : ui.tab === 'hall' ? viewHall() : viewHome(); }
+  $app.innerHTML = html;
+  if (ui.screen){ $tabs.hidden = true; }
+  else {
+    $tabs.hidden = false;
+    $tabs.innerHTML = '<div>' + [['home','Аскези'],['stats','Статистика'],['hall','Зал слави']]
+      .map(t => '<button data-act="tab" data-tab="' + t[0] + '" class="' + (ui.tab === t[0] ? 'on' : '') + '">' + t[1] + '</button>').join('') + '</div>';
+  }
+  window.scrollTo(0, 0);
+}
+
+function noticeHtml(c){
+  if (!c.notice) return '';
+  const n = c.notice;
+  return '<div class="notice"><div>Пропущено день ' + n.day + ': серія ' + n.streak + ' ' + plDays(n.streak) +
+    ' скинута. Нова спроба №' + n.attempt + ', день 1 — сьогодні.</div><button data-act="dismiss" data-id="' + c.id + '" aria-label="Закрити">×</button></div>';
+}
+
+function viewHome(){
+  const list = state.challenges.filter(c => c.status === 'active');
+  const T = today();
+  let h = '<div class="top"><h1>Мої аскези</h1><button class="iconbtn" data-act="new" aria-label="Додати">+</button></div>';
+  if (isIOS() && !isStandalone() && !state.hintDismissed)
+    h += '<div class="hint"><div>Щоб встановити як додаток: «Поділитися» → «На початковий екран».</div><button data-act="hintx" aria-label="Закрити">×</button></div>';
+  if (memOnly)
+    h += '<div class="notice"><div>Браузер не дозволяє зберігати дані. Вони зникнуть після закриття. Відкрий застосунок у Safari.</div></div>';
+  if (!list.length){
+    h += '<div class="empty"><div class="big">Поки що порожньо</div>Створи першу аскезу або звичку.' +
+      '<div class="btns"><button class="btn" data-act="new">Створити</button></div></div>';
+    return h;
+  }
+  for (const c of list){
+    const N = dayIndex(c, T), td = targetDay(c, T);
+    const cnt = checkedCount(c);
+    const pct = Math.round(cnt / c.days * 100);
+    let btn;
+    if (td === null) btn = '<div class="small">Старт<br>' + fmtDate(c.start) + '</div>';
+    else {
+      const on = !!c.checks[dateOf(c, td)];
+      btn = '<button class="chk ' + (on ? 'on' : '') + (canToggle(c, td, T) ? '' : ' dis') + '" data-act="today" data-id="' + c.id + '" aria-label="Відмітити сьогодні">' + ICON_CHECK + '</button>';
+    }
+    h += '<div class="card" data-act="open" data-id="' + c.id + '">' +
+      '<div class="row"><div class="grow"><div class="t">' + esc(c.title) + '</div>' +
+      '<div class="sub">' + (c.goal ? esc(c.goal) : (c.kind === 'habit' ? 'Звичка' : 'Аскеза')) + '</div></div>' + btn + '</div>' +
+      '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="meta"><span>' + (N < 1 ? 'Старт ' + fmtDate(c.start) : 'День ' + Math.min(N, c.days) + ' з ' + c.days) + '</span>' +
+      '<span>Серія ' + streak(c) + '</span><span>Спроба №' + c.attempt + '</span></div>' + noticeHtml(c) + '</div>';
+  }
+  return h;
+}
+
+function viewDetail(c){
+  const T = today(), N = dayIndex(c, T);
+  const cnt = checkedCount(c), pct = Math.round(cnt / c.days * 100);
+  const left = c.days - cnt;
+  let h = '<div class="top"><button class="iconbtn" data-act="back" aria-label="Назад">‹</button><span class="small">' + (c.kind === 'habit' ? 'Звичка' : 'Аскеза') + '</span><span style="width:40px"></span></div>';
+  h += '<h1>' + esc(c.title) + '</h1>';
+  if (c.goal) h += '<div class="sub" style="margin-top:6px">Ціль: ' + esc(c.goal) + '</div>';
+  if (c.reward) h += '<div class="sub">Нагорода: ' + esc(c.reward) + '</div>';
+  h += '<div class="card" style="margin-top:18px"><div class="big-num">' + cnt + ' <small>з ' + c.days + '</small></div>' +
+    '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+    '<div class="meta"><span>' + (c.status === 'done' ? 'Завершено ' + fmtFull(c.finishedAt || c.completedAt || T) : 'Залишилось ' + left + ' ' + plDays(left)) + '</span>' +
+    '<span>Серія ' + streak(c) + '</span><span>Спроба №' + c.attempt + '</span></div>' + noticeHtml(c) + '</div>';
+  if (N < 1){
+    h += '<div class="card"><div class="sub">Старт ' + fmtDate(c.start, true) + '. Чек-лист відкриється в цей день.</div></div>';
+  } else {
+    h += '<h2>Чек-лист</h2><div class="card days" style="padding:6px 16px">';
+    const top = Math.min(N, c.days);
+    for (let d = top; d >= 1; d--){
+      const k = dateOf(c, d), on = !!c.checks[k], can = canToggle(c, d, T);
+      const isToday = d === N, isYest = d === N - 1;
+      let cls = 'chk' + (on ? ' on' : '') + (!can && on ? ' lock' : '') + (!can && !on ? ' dis' : '');
+      h += '<div class="d"><div class="grow"><div class="n">День ' + d + (isToday ? ' · сьогодні' : isYest ? ' · вчора' : '') + '</div>' +
+        '<div class="dt">' + fmtDate(k, true) + '</div>' +
+        (isYest && !on && can ? '<div class="warn">Можна відмітити до кінця сьогодні</div>' : '') + '</div>' +
+        (can ? '<button class="' + cls + '" data-act="day" data-id="' + c.id + '" data-d="' + d + '">' + ICON_CHECK + '</button>'
+             : '<div class="' + cls + '">' + ICON_CHECK + '</div>') + '</div>';
+    }
+    h += '</div>';
+    if (N < c.days) h += '<div class="small center">Попереду ще ' + (c.days - N) + ' ' + plDays(c.days - N) + '</div>';
+  }
+  if (c.attempts.length){
+    h += '<h2>Попередні спроби</h2><div class="card small" style="color:var(--tx)">' +
+      c.attempts.map(a => '№' + a.n + ' — ' + a.streak + ' ' + plDays(a.streak) + ' (' + fmtFull(a.start) + ' – ' + fmtFull(a.end) + ')').join('<br>') + '</div>';
+  }
+  h += '<div class="btns">';
+  if (c.status === 'done') h += '<button class="btn" data-act="reward" data-id="' + c.id + '">Нагорода</button>';
+  h += '<button class="btn danger" data-act="del" data-id="' + c.id + '">Видалити</button></div>';
+  return h;
+}
+
+function viewNew(){
+  const T = today();
+  const ideas = k => '<div class="scroll">' + IDEAS[k].map(i => '<button class="chip" data-act="idea" data-kind="' + k + '" data-t="' + esc(i[0]) + '" data-d="' + i[1] + '">' + esc(i[0]) + '</button>').join('') + '</div>';
+  return '<div class="top"><button class="iconbtn" data-act="back" aria-label="Назад">‹</button><span class="small">Нова</span><span style="width:40px"></span></div>' +
+    '<h1>Нова аскеза</h1>' +
+    '<span class="lbl">Ідеї — аскези</span>' + ideas('abstain') +
+    '<span class="lbl" style="margin-top:6px">Ідеї — звички</span>' + ideas('habit') +
+    '<span class="lbl">Назва</span><input id="f-title" maxlength="60" placeholder="Наприклад: Без цукру">' +
+    '<span class="lbl">Тип</span><div class="seg" id="f-kind" data-kind="abstain"><button class="on" data-act="kind" data-kind="abstain">Аскеза</button><button data-act="kind" data-kind="habit">Звичка</button></div>' +
+    '<span class="lbl">Для чого (ціль)</span><input id="f-goal" maxlength="80" placeholder="Наприклад: більше енергії">' +
+    '<span class="lbl">Кількість днів</span><input id="f-days" type="number" inputmode="numeric" min="1" max="365" value="21">' +
+    '<div class="chips" style="margin-top:8px">' + [7,21,40,100].map(n => '<button class="chip" data-act="daysq" data-n="' + n + '">' + n + '</button>').join('') + '</div>' +
+    '<span class="lbl">Старт</span><input id="f-start" type="date" value="' + T + '" min="' + T + '" max="' + addDays(T, 30) + '">' +
+    '<span class="lbl">Нагорода в кінці</span><input id="f-reward" maxlength="80" placeholder="Наприклад: нові кросівки">' +
+    '<div class="btns"><button class="btn" data-act="create">Створити</button></div>';
+}
+
+function viewStats(){
+  const s = calcStats(state);
+  const tile = (n, l) => '<div class="tile"><b>' + n + '</b><span>' + l + '</span></div>';
+  let h = '<div class="top"><h1>Статистика</h1></div><div class="tiles">' +
+    tile(s.completed, 'Завершено') + tile(s.active, 'Активних') +
+    tile(s.bestNow, 'Серія зараз') + tile(s.best, 'Найкраща серія') +
+    tile(s.attempts, 'Спроб') + tile(s.resets, 'Зривів') + '</div>' +
+    '<div class="tiles" style="margin-top:10px;grid-template-columns:1fr">' + tile(s.days, 'Днів витримано всього') + '</div>' +
+    '<h2>Медалі</h2><div class="medals">' + MEDALS.map(m => '<div class="medal ' + (s.best >= m ? 'on' : '') + '"><div class="o">' + m + '</div><span>' + plDays(m) + '</span></div>').join('') + '</div>' +
+    '<h2>Резервна копія</h2><div class="card"><div class="small" style="color:var(--tx)">Дані зберігаються лише на цьому пристрої. Зроби копію, щоб не втратити їх.</div>' +
+    '<div class="small" style="margin-top:6px">' + (state.lastBackup ? 'Остання копія: ' + fmtFull(state.lastBackup) : 'Копію ще не робили') + '</div>' +
+    '<div class="btns"><button class="btn ghost" data-act="bk-copy">Копіювати дані</button><button class="btn ghost" data-act="bk-file">Зберегти файл</button><button class="btn ghost" data-act="bk-import">Імпорт</button></div></div>';
+  return h;
+}
+
+function viewHall(){
+  const list = state.challenges.filter(c => (c.completions || 0) > 0).sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)));
+  let h = '<div class="top"><h1>Зал слави</h1></div>';
+  if (!list.length) return h + '<div class="empty"><div class="big">Поки що порожньо</div>Тут з’являться завершені аскези й звички.</div>';
+  for (const c of list){
+    h += '<div class="card" data-act="open" data-id="' + c.id + '"><div class="row"><div class="grow"><div class="t">' + esc(c.title) + '</div>' +
+      '<div class="sub">' + c.days + ' ' + plDays(c.days) + ' · спроба №' + c.attempt + ' · ' + fmtFull(c.completedAt) + '</div>' +
+      (c.reward ? '<div class="sub" style="color:var(--acc)">Нагорода: ' + esc(c.reward) + '</div>' : '') +
+      (c.status === 'active' ? '<div class="sub">Триває далі</div>' : '') + '</div>' +
+      '<div class="chk on" style="width:36px;height:36px">' + ICON_CHECK + '</div></div></div>';
+  }
+  return h;
+}
+
+/* ---------- Действия ---------- */
+function refresh(){
+  if (tick(state, today())) save();
+}
+function showComplete(c){
+  const medal = MEDALS.includes(c.days);
+  openModal('<div class="center"><div class="ring">' + ICON_CHECK + '</div><h3>Завершено!</h3>' +
+    '<div class="sub">' + esc(c.title) + '</div><div class="sub">' + c.days + ' ' + plDays(c.days) + ' · спроба №' + c.attempt + (medal ? ' · медаль ' + c.days : '') + '</div></div>' +
+    (c.reward ? '<div class="reward center"><small>Твоя нагорода</small>' + esc(c.reward) + '</div>' : '') +
+    '<div class="btns"><button class="btn" data-act="extend-open" data-id="' + c.id + '">Продовжити</button>' +
+    '<button class="btn ghost" data-act="restart" data-id="' + c.id + '">Почати знову</button>' +
+    '<button class="btn ghost" data-act="closeModal">Закрити</button></div>');
+}
+function doToggle(c, d){
+  refresh();
+  const r = toggleDay(c, d, today());
+  if (!r.ok){ toast('Цей день уже не можна змінити'); render(); return; }
+  save();
+  if (r.checked && !r.completed){
+    const s = streak(c);
+    if (MEDALS.includes(s)) toast('Медаль: ' + s + ' ' + plDays(s));
+  }
+  render();
+  if (r.completed) showComplete(c);
+}
+function exportJSON(){ return JSON.stringify(state, null, 1); }
+function markBackup(){ state.lastBackup = today(); save(); }
+function fallbackCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+  ta.remove(); return ok;
+}
+async function doImport(text){
+  let s;
+  try { s = JSON.parse(text); } catch (e) { toast('Не вдалося прочитати дані'); return; }
+  if (!s || !Array.isArray(s.challenges)){ toast('Це не копія Аскези'); return; }
+  state = s; save(); closeModal(); ui = { tab: 'home', screen: null, id: null }; refresh(); render(); toast('Дані відновлено');
+}
+
+const H = {
+  tab(el){ ui.tab = el.dataset.tab; ui.screen = null; render(); },
+  new(){ ui.screen = 'new'; render(); },
+  back(){ ui.screen = null; render(); },
+  open(el){ ui.screen = 'detail'; ui.id = el.dataset.id; render(); },
+  today(el){ const c = find(el.dataset.id); refresh(); const d = targetDay(c, today()); if (d) doToggle(c, d); },
+  day(el){ doToggle(find(el.dataset.id), Number(el.dataset.d)); },
+  dismiss(el){ const c = find(el.dataset.id); c.notice = null; save(); render(); },
+  hintx(){ state.hintDismissed = true; save(); render(); },
+  modalbg(el, e){ if (e.target === el) closeModal(); },
+  closeModal(){ closeModal(); },
+  kind(el){
+    const seg = document.getElementById('f-kind'); seg.dataset.kind = el.dataset.kind;
+    seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el));
+  },
+  idea(el){
+    document.getElementById('f-title').value = el.dataset.t;
+    document.getElementById('f-days').value = el.dataset.d;
+    H.kind(document.querySelector('#f-kind button[data-kind="' + el.dataset.kind + '"]'));
+  },
+  daysq(el){ document.getElementById('f-days').value = el.dataset.n; },
+  create(){
+    const title = document.getElementById('f-title').value.trim();
+    const days = parseInt(document.getElementById('f-days').value, 10);
+    const T = today();
+    let start = document.getElementById('f-start').value || T;
+    if (start < T) start = T;
+    if (!title){ toast('Вкажи назву'); return; }
+    if (!(days >= 1 && days <= 365)){ toast('Днів має бути від 1 до 365'); return; }
+    const c = newChallenge({
+      title: title, days: days, start: start,
+      goal: document.getElementById('f-goal').value.trim(),
+      reward: document.getElementById('f-reward').value.trim(),
+      kind: document.getElementById('f-kind').dataset.kind
+    }, 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+    state.challenges.push(c); save();
+    ui = { tab: 'home', screen: null, id: null }; render(); toast('Створено');
+  },
+  del(el){
+    const c = find(el.dataset.id);
+    openModal('<h3>Видалити?</h3><div class="sub">«' + esc(c.title) + '» буде видалено без можливості відновлення.</div>' +
+      '<div class="btns"><button class="btn danger" data-act="del-ok" data-id="' + c.id + '">Видалити</button><button class="btn ghost" data-act="closeModal">Скасувати</button></div>');
+  },
+  'del-ok'(el){
+    state.challenges = state.challenges.filter(c => c.id !== el.dataset.id); save();
+    closeModal(); ui.screen = null; render();
+  },
+  reward(el){ showComplete(find(el.dataset.id)); },
+  'extend-open'(el){
+    openModal('<h3>Продовжити</h3><div class="sub">На скільки днів?</div><div class="chips" style="margin-top:14px">' +
+      [7,21,40,100].map(n => '<button class="chip" data-act="extend" data-id="' + el.dataset.id + '" data-n="' + n + '">+' + n + '</button>').join('') +
+      '</div><div class="btns"><button class="btn ghost" data-act="closeModal">Скасувати</button></div>');
+  },
+  extend(el){
+    const c = find(el.dataset.id); c.days += Number(el.dataset.n); c.status = 'active'; c.finishedAt = null; save();
+    closeModal(); ui = { tab: 'home', screen: null, id: null }; render(); toast('Продовжено');
+  },
+  restart(el){
+    const o = find(el.dataset.id);
+    const c = newChallenge({ title: o.title, goal: o.goal, reward: o.reward, kind: o.kind, days: o.days, start: today() },
+      'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+    state.challenges.push(c); save();
+    closeModal(); ui = { tab: 'home', screen: null, id: null }; render(); toast('Нова спроба почалась');
+  },
+  async 'bk-copy'(){
+    const txt = exportJSON(); let ok = false;
+    try { await navigator.clipboard.writeText(txt); ok = true; } catch (e) { ok = fallbackCopy(txt); }
+    if (ok){ markBackup(); render(); toast('Скопійовано'); } else toast('Не вдалося скопіювати');
+  },
+  async 'bk-file'(){
+    const txt = exportJSON(), name = 'askeza-backup-' + today() + '.json';
+    try {
+      const f = new File([txt], name, { type: 'application/json' });
+      if (navigator.canShare && navigator.canShare({ files: [f] })){ await navigator.share({ files: [f], title: 'Аскеза' }); markBackup(); render(); return; }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([txt], { type: 'application/json' })); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); markBackup(); render();
+  },
+  'bk-import'(){
+    openModal('<h3>Імпорт</h3><div class="sub">Встав скопійовані дані або обери файл. Поточні дані буде замінено.</div>' +
+      '<textarea id="imp-text" style="margin-top:14px" placeholder="{ ... }"></textarea>' +
+      '<input id="imp-file" type="file" accept="application/json,.json" style="margin-top:10px">' +
+      '<div class="btns"><button class="btn" data-act="imp-go">Імпортувати</button><button class="btn ghost" data-act="closeModal">Скасувати</button></div>');
+  },
+  async 'imp-go'(){
+    const f = document.getElementById('imp-file').files[0];
+    const txt = f ? await f.text() : document.getElementById('imp-text').value;
+    if (!txt.trim()){ toast('Нічого імпортувати'); return; }
+    doImport(txt);
+  }
+};
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const fn = H[el.dataset.act];
+  if (fn) fn(el, e);
+});
+
+function onWake(){
+  const T = today();
+  const changed = tick(state, T);
+  if (changed) save();
+  if ((changed || T !== lastToday) && ui.screen !== 'new' && $modal.hidden){ lastToday = T; render(); }
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) onWake(); });
+setInterval(onWake, 60000);
+
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+if ('serviceWorker' in navigator && location.protocol !== 'file:'){
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+refresh();
+render();
+</script>
+</body>
+</html>
